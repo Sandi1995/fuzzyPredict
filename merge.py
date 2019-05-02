@@ -1,6 +1,6 @@
 import pandas as pd
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
+#from fuzzywuzzy import process
 
 def match_name(item,item_list,min_score=0):
     max_score = -1
@@ -16,10 +16,24 @@ def match_name(item,item_list,min_score=0):
             max_score = score
     return (max_name, max_score)
 
-data=pd.read_csv("test_cvs.csv")
+data=pd.read_csv("test_csv.csv")
 master=data.dropna()
 missing_name=data[data.names.isnull()]
-for item in missing_name[['phone','address']].values.tolist():                                                                                  
-     match=match_name(item,master[['phone','address']].values.tolist(),75)                                                                       
-     print("name :",master.loc[master['phone']==match[0][0],'names'].tolist()[0],'score: ',match[1]) 
- 
+dict_list=[]
+
+# change as per field name and required
+field_name="address"  # change as per field name
+for item in missing_name[[field_name]].values.tolist():
+    match=match_name(item,master[[field_name]].values.tolist(),75)
+    #print("name :",master.loc[master[field_name]==match[0][0],'names'].tolist()[0],'score: ',match[1])
+
+    # New dict for storing data
+    dict_ = {}
+    dict_.update({field_name:item[0]})
+    dict_.update({"match_name": match[0][0]})
+    dict_.update({"score": match[1]})
+    dict_list.append(dict_)
+
+merge_table = pd.DataFrame(dict_list)
+# Display results
+print(merge_table)
